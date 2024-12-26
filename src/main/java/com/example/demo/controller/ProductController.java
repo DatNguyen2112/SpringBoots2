@@ -31,8 +31,20 @@ public class ProductController {
     }
 
     @PostMapping("/getProducts")
-    public ResponseEntity<Object> getUsersList(@RequestBody ProductRequest request) {
+    public ResponseEntity<Object> getProductsList(@RequestBody ProductRequest request) {
         PaginationResponse obj = productService.getProductList(request);
         return ResponseHandler.generateResponse("Success", HttpStatus.OK, obj );
+    }
+
+    @GetMapping("/product/{id}")
+    public ResponseEntity<Object> getProductsById(@PathVariable Long id) {
+        ProductResponse obj = productService.getProduct(id);
+
+        if (obj == null) {
+            return ResponseHandler.generateResponse("Không tìm thấy bản ghi nào !!!", HttpStatus.BAD_REQUEST, obj );
+        } else {
+            return ResponseHandler.generateResponse("Success", HttpStatus.OK, obj );
+        }
+
     }
 }

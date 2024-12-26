@@ -32,7 +32,9 @@ public class ProductServiceImpl implements ProductService {
     @Value("${pagination.page.size.default}")
     private Integer defaultPageSize;
 
-    public ProductServiceImpl(ModelMapper modelMapper, ProductRepository productRepository, ProductSpecification productSpecification) {
+    public ProductServiceImpl(ModelMapper modelMapper,
+                              ProductRepository productRepository,
+                              ProductSpecification productSpecification) {
         this.modelMapper = modelMapper;
         this.productRepository = productRepository;
         this.productSpecification = productSpecification;
@@ -95,5 +97,23 @@ public class ProductServiceImpl implements ProductService {
             }
         }
         return null;
+    }
+
+    @Override
+    public ProductResponse getProduct(long id) {
+        ProductResponse productResponse = new ProductResponse();
+        Product productEntity = productRepository.getProductById(id);
+
+        if (productEntity != null) {
+            productResponse.setId(productEntity.getId());
+            productResponse.setName(productEntity.getName());
+            productResponse.setPrice(productEntity.getPrice());
+            productResponse.setQuantity(productEntity.getQuantity());
+            productResponse.setCode(productEntity.getCode());
+        } else {
+            return null;
+        }
+
+        return productResponse;
     }
 }

@@ -16,4 +16,5 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
     Product save(ProductCreateModal modal);
     Page<Product> findAll(Specification<Product> spec, Pageable pageable);
     List<Product> findAll(Specification<Product> spec);
+    Product getProductById(Long id);
 }

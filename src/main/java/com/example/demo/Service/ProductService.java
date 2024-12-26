@@ -7,5 +7,6 @@ import com.example.demo.Modal.ProductCreateModal;
 
 public interface ProductService {
     ProductResponse createProduct(ProductCreateModal modal);
-    public PaginationResponse getProductList(ProductRequest productRequest);
+    PaginationResponse getProductList(ProductRequest productRequest);
+    ProductResponse getProduct(long id);
 }
