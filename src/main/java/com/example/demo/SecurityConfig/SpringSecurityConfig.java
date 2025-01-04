@@ -45,7 +45,6 @@ public class SpringSecurityConfig {
                     authorize.requestMatchers(HttpMethod.PUT, "/api/v1/**").hasRole("ADMIN");
                     authorize.requestMatchers(HttpMethod.DELETE, "/api/v1/**").hasRole("ADMIN");
                     authorize.requestMatchers(HttpMethod.GET, "/api/v1/**").hasAnyRole("ADMIN");
-                    authorize.requestMatchers(HttpMethod.GET, "/api/v1/**").permitAll();
                     authorize.requestMatchers("/**").permitAll();
                     authorize.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
                     authorize.anyRequest().authenticated();

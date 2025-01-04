@@ -2,10 +2,9 @@ package com.example.demo.Impl;
 
 import com.common.demo.PaginationResponse;
 import com.example.demo.Data.Entity.Product;
-import com.example.demo.Data.Entity.User;
 import com.example.demo.Data.Request.ProductRequest;
 import com.example.demo.Data.Response.ProductResponse;
-import com.example.demo.Data.Response.UserResponse;
+import com.example.demo.Data.Response.Response;
 import com.example.demo.Modal.ProductCreateModal;
 import com.example.demo.Repository.ProductRepository;
 import com.example.demo.Service.ProductService;
@@ -16,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -41,29 +41,35 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductResponse createProduct(ProductCreateModal modal) {
-        Product product = modelMapper.map(modal, Product.class);
+    public Response<ProductResponse> createProduct(ProductCreateModal modal) {
+        try {
+            Product product = modelMapper.map(modal, Product.class);
 
-        product.setName(product.getName());
-        product.setDescription(product.getDescription());
-        product.setPrice(product.getPrice());
-        product.setQuantity(product.getQuantity());
+            boolean IsExistCode = productRepository.existsCodeInDatabase(modal.getCode());
 
-        Product resultProduct = productRepository.save(product);
+            if (IsExistCode) {
+                return new Response<ProductResponse>(HttpStatus.BAD_REQUEST, "Mã sản phẩm đã tồn tại trong hệ thống", false, null);
+            }
 
-        // New contructor
-        ProductResponse productResponse = new ProductResponse();
-        productResponse.setId(resultProduct.getId());
-        productResponse.setCode(resultProduct.getCode());
-        productResponse.setName(resultProduct.getName());
-        productResponse.setPrice(resultProduct.getPrice());
-        productResponse.setQuantity(resultProduct.getQuantity());
+            List<Product> productList = productRepository.findAll();
 
-        return productResponse;
+            product.setName(product.getName());
+            product.setDescription(product.getDescription());
+            product.setPrice(product.getPrice());
+            product.setQuantity(product.getQuantity());
+            productRepository.save(product);
+
+            //mapper
+            ProductResponse resultProductEntity = modelMapper.map(product, ProductResponse.class);
+
+            return new Response<ProductResponse>(HttpStatus.OK, "Thêm mới thành công", true, resultProductEntity);
+        } catch (Exception ex) {
+            return new Response<ProductResponse>(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), false, null);
+        }
     }
 
     @Override
-    public PaginationResponse getProductList(ProductRequest productRequest) {
+    public PaginationResponse<Product> getProductList(ProductRequest productRequest) {
         List<Product> list = null;
         Page<Product> pages = null;
 
@@ -83,7 +89,7 @@ public class ProductServiceImpl implements ProductService {
                 respList.setPages(pages.getTotalPages());
                 respList.setCount(pages.getTotalElements());
                 respList.setCurrentPage(pages.getNumber() + 1);
-                respList.setItems(new ArrayList<Object>());
+                respList.setItems(new ArrayList<Product>());
                 for (Product products : list) {
                     ProductResponse obj = new ProductResponse();
                     obj.setId(products.getId());
@@ -93,6 +99,7 @@ public class ProductServiceImpl implements ProductService {
                     obj.setCode(products.getCode());
                     respList.getItems().add(obj);
                 }
+
                 return respList;
             }
         }
@@ -100,20 +107,43 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductResponse getProduct(long id) {
-        ProductResponse productResponse = new ProductResponse();
-        Product productEntity = productRepository.getProductById(id);
+    public Response<ProductResponse> getProduct(long id) {
+        try {
+            Product productEntity = productRepository.getProductById(id);
 
-        if (productEntity != null) {
-            productResponse.setId(productEntity.getId());
-            productResponse.setName(productEntity.getName());
-            productResponse.setPrice(productEntity.getPrice());
-            productResponse.setQuantity(productEntity.getQuantity());
-            productResponse.setCode(productEntity.getCode());
-        } else {
-            return null;
+            if (productEntity == null) {
+                return new Response<ProductResponse>(HttpStatus.BAD_REQUEST, "Khong tim thay san pham nao", false, null);
+            }
+
+            ProductResponse productEntityMapper = modelMapper.map(productEntity, ProductResponse.class);
+
+            return new Response<ProductResponse>(HttpStatus.OK, "", true, productEntityMapper);
+        } catch (Exception ex) {
+            return new Response<ProductResponse>(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), false, null);
         }
+    }
 
-        return productResponse;
+    @Override
+    public Response<ProductResponse> updateProduct(long id, ProductCreateModal modal) {
+        try {
+            Product productEntity = productRepository.getProductById(id);
+
+            if (productEntity == null) {
+                return new Response<ProductResponse>(HttpStatus.BAD_REQUEST, "Khong tim thay san pham", false, null);
+            }
+
+            ProductResponse productEntityMapper = modelMapper.map(productEntity, ProductResponse.class);
+
+            productEntityMapper.setName(modal.getName());;
+            productEntityMapper.setPrice(modal.getPrice());
+            productEntityMapper.setCode(modal.getCode());
+            productEntityMapper.setQuantity(modal.getQuantity());
+            productEntityMapper.setPrice(modal.getPrice());
+            productRepository.save(productEntity);
+
+            return new Response<ProductResponse>(HttpStatus.OK, "Chinh sua san pham thanh cong", true, productEntityMapper);
+        } catch (Exception ex) {
+            return new Response<ProductResponse>(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), false, null);
+        }
     }
 }

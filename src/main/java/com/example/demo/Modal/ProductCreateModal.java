@@ -7,7 +7,7 @@ public class ProductCreateModal {
     private String name;
     private String description;
     private double price;
-    private double quantity;
+    private int quantity;
     private String code;
 
     public String getName() {
@@ -34,11 +34,11 @@ public class ProductCreateModal {
         this.price = price;
     }
 
-    public double getQuantity() {
+    public int getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(double quantity) {
+    public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
 

@@ -8,11 +8,11 @@ import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
-public class PaginationResponse {
+public class PaginationResponse<T> {
     public double pages;
     public double count;
     public double currentPage;
-    public ArrayList<Object> items;
+    public ArrayList<T> items;
 
     public double getPages() {
         return pages;
@@ -38,11 +38,11 @@ public class PaginationResponse {
         this.currentPage = currentPage;
     }
 
-    public ArrayList<Object> getItems() {
+    public ArrayList<T> getItems() {
         return items;
     }
 
-    public void setItems(ArrayList<Object> items) {
+    public void setItems(ArrayList<T> items) {
         this.items = items;
     }
 }
